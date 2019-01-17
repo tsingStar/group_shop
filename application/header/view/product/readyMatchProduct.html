@@ -1,0 +1,87 @@
+﻿{include file='pub@pub/header'/}
+<title>商品列表</title>
+<style>
+    .td-manage a{
+        display: inline-block;
+    }
+</style>
+</head>
+<body class="pos-r">
+<div>
+    <nav class="breadcrumb">{$breadNav} <a class="btn btn-success radius r btn-refresh" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+    <div class="page-container">
+        <div class="text-c">
+            <form action="" method="get">
+                商品名称：<input type="text" name="product_name" autocomplete="false" value="{$param.product_name|default=''}" id="" placeholder=" 商品名称" style="width:250px" class="input-text">
+            <button class="btn btn-success" type="submit"><i class="Hui-iconfont">&#xe665;</i> 搜商品
+            </button>
+            </form>
+        </div>
+        <div class="mt-20">
+            <table class="table table-border table-bordered table-bg table-hover table-sort">
+                <thead>
+                    <tr class="text-c">
+                        <th width="40">ID</th>
+                        <th width="100">名称</th>
+                        <th width="100">单位</th>
+                        <th width="100">规格</th>
+                        <th width="100">每份数量</th>
+                        <th width="100">库存剩余</th>
+                        <th width="100">配货数量</th>
+                        <th width="200">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {foreach $list as $item}
+                <tr class="text-c va-m">
+                    <td>{$item.id}</td>
+                    <td class="text-l">
+                        {$item.product_name}
+                    </td>
+                    <td>
+                        {$item.unit}
+                    </td>
+                    <td>
+                        {$item.attr}
+                    </td>
+                    <td>
+                        {$item.one_num}
+                    </td>
+                    <td>
+                        {$item.stock}
+                    </td>
+                    <td>
+                        {$item.buy_num}
+                    </td>
+                    <td class="td-manage">
+                        <a style="text-decoration:none" class="ml-5"
+                           onClick="matchProduct('{$item.id}')"
+                           href="javascript:;" title="商品配货">
+                            <i class="Hui-iconfont Hui-iconfont-list"></i>商品配货
+                        </a>
+                    </td>
+                </tr>
+                {/foreach}
+                </tbody>
+            </table>
+            {$list->render()}
+        </div>
+    </div>
+</div>
+
+{include file='pub@pub/footer'/}
+<script type="text/javascript">
+    //当前商品配货
+    function matchProduct(id){
+        layer.confirm("确定配货当前商品？", function(){
+            $.post('{:url("matchProduct")}', {product_id:id}, function(res){
+                if(res.code == 1){
+                    location.reload();
+                }
+                layer.msg(res.msg);
+            });
+        })
+    }
+</script>
+</body>
+</html>

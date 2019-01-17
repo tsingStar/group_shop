@@ -1,0 +1,104 @@
+﻿{include file='pub@pub/header'/}
+<title>团长列表</title>
+</head>
+<body class="pos-r">
+<div>
+    <nav class="breadcrumb">{$breadNav} <a class="btn btn-success radius r btn-refresh" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+    <div class="page-container">
+        <div class="text-c">
+            <form action="" method="get">
+                姓名：<input type="text" name="name" autocomplete="false" value="{$param.name|default=''}" placeholder="姓名" style="width:250px" class="input-text">
+                手机号：<input type="text" name="telephone" autocomplete="false" value="{$param.telephone|default=''}" placeholder="手机号" style="width:250px" class="input-text">
+                <button class="btn btn-success" type="submit"><i class="Hui-iconfont">&#xe665;</i> 查找
+                </button>
+            </form>
+        </div>
+        <div class="cl pd-5 bg-1 bk-gray mt-20">
+            <span class="r">共有数据：<strong>{$totalNum}</strong> 条</span>
+        </div>
+        <div class="mt-20">
+            <table class="table table-border table-bordered table-bg table-hover table-sort">
+                <thead>
+                <tr class="text-c">
+                    <th width="60">姓名</th>
+                    <th width="100">联系方式</th>
+                    <th width="100">地址</th>
+                    <th width="100">小区名称</th>
+                    <th width="100">小区户数</th>
+                    <th width="100">可提现金额</th>
+                    <th width="100">冻结金额</th>
+                    <th width="100">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {foreach $list as $item}
+                <tr class="text-c va-m">
+                    <td>{$item.name}</td>
+                    <td>{$item.telephone}</td>
+                    <td>{$item.address}</td>
+                    <td>
+                        {$item.residential}
+                    </td>
+                    <td>{$item.neighbours}</td>
+                    <td>{$item.amount_able}</td>
+                    <td>{$item.amount_lock}</td>
+                    <td class="td-manage">
+                        <button type="button" class="btn btn-primary radius size-MINI" onclick="cancel('{$item.id}')">取消团长</button>
+                        {if $item.is_able eq 0}
+                        <button type="button" class="btn btn-primary radius size-MINI" onclick="forbidden('{$item.id}', 0)">禁用团长</button>
+                        {else/}
+                        <button type="button" class="btn btn-primary radius size-MINI" onclick="forbidden('{$item.id}', 1)">启用团长</button>
+                        {/if}
+                    </td>
+                </tr>
+                {/foreach}
+                </tbody>
+            </table>
+            {$list->render()}
+        </div>
+    </div>
+</div>
+
+{include file='pub@pub/footer'/}
+<script type="text/javascript">
+    // $('.table-sort').dataTable({
+    //     "ordering": false,//是否开启排序
+    //     "bStateSave": true,//状态保存
+    // });
+    //禁用团长
+    function forbidden(id, type){
+        var msg = type==1?"确定启用此团长身份？":"确定禁用此团长身份？";
+        layer.confirm(msg, function () {
+            $.post("{:url('forbidden')}", {id:id, type:type}, function (res) {
+                if(res.code == 1){
+                    layer.msg(res.msg);
+                    setTimeout(function () {
+                        location.reload();
+                    }, 888);
+                }else{
+                    layer.msg(res.msg);
+                }
+            });
+        })
+    }
+
+    //取消团长
+    function cancel(id){
+        layer.confirm("确定取消团长身份？", function () {
+            $.post("{:url('cancel')}", {id:id}, function (res) {
+                if(res.code == 1){
+                    layer.msg(res.msg);
+                    setTimeout(function () {
+                        location.reload();
+                    }, 888);
+                }else{
+                    layer.msg(res.msg);
+                }
+            });
+        })
+    }
+
+
+</script>
+</body>
+</html>

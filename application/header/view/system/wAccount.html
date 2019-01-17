@@ -1,0 +1,85 @@
+﻿{include file='pub@pub/header'/}
+<title>微信用户列表</title>
+</head>
+<body class="pos-r">
+<div>
+    <nav class="breadcrumb">{$breadNav} <a class="btn btn-success radius r btn-refresh" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+    <div class="page-container">
+        <div class="cl pd-5 bg-1 bk-gray mt-20">
+            <span class="l">
+                <button class="btn btn-primary size-MINI radius" onclick="layer_show('编辑用户', '{:url(\'System/addWxAccount\')}')">绑定用户</button>
+            </span>
+            <span class="r">共有数据：<strong>{$totalNum}</strong> 条</span>
+        </div>
+        <div class="mt-20">
+            <table class="table table-border table-bordered table-bg table-hover table-sort">
+                <thead>
+                <tr class="text-c">
+                    <th width="60">ID</th>
+                    <th width="60">用户名</th>
+                    <th width="60">open_id</th>
+                    <th width="60">是否为提现账户</th>
+                    <th width="100">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {foreach $list as $item}
+                <tr class="text-c va-m">
+                    <td>{$item.id}</td>
+                    <td>{$item.user_name}</td>
+                    <td>{$item.open_id}</td>
+                    <td>
+                        <input type="checkbox" onclick="changeAdmin('{$item.id}', this)" {if $item.is_admin eq 1}checked{/if}>
+                    </td>
+                    <td class="td-manage">
+                        <button type="button" class="btn btn-primary radius size-MINI" onclick="cancel('{$item.id}')">删除用户</button>
+                    </td>
+                </tr>
+                {/foreach}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{include file='pub@pub/footer'/}
+<script type="text/javascript">
+    // $('.table-sort').dataTable({
+    //     "ordering": false,//是否开启排序
+    //     "bStateSave": true,//状态保存
+    // });
+    /**
+     * 更改管理账号
+     */
+    function changeAdmin(id, o){
+        $(o).prop("checked", !$(o).prop("checked"));
+        layer.confirm("确定绑定此用户为管理账户？", function () {
+            $.post('{:url("changeAdmin")}', {id:id}, function(res){
+                if(res.code == 1){
+                    location.reload();
+                }
+                layer.msg(res.msg);
+            });
+        })
+    }
+
+    //取消团长
+    function cancel(id){
+        layer.confirm("确定取消绑定身份？", function () {
+            $.post("{:url('cancel')}", {id:id}, function (res) {
+                if(res.code == 1){
+                    layer.msg(res.msg);
+                    setTimeout(function () {
+                        location.reload();
+                    }, 888);
+                }else{
+                    layer.msg(res.msg);
+                }
+            });
+        })
+    }
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+{include file='pub@pub/header'/}
+<title>新增商品</title>
+</head>
+<body>
+<div class="page-container">
+    <form class="form form-horizontal" id="form-product-add" enctype="multipart/form-data" method="post">
+        <input type="hidden" name="product_detail" value="">
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>商品名称：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" value="" placeholder="" name="product_name" required>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>商品分类：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <select type="text" class="input-text select select-box" name="cate_id" required>
+                    <option value="0">未选择</option>
+                    {foreach $cate_list as $key=>$val}
+                        <option value="{$key}">{$val}</option>
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>商品单位：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <select type="text" class="input-text select select-box" name="unit">
+                    {foreach $unit_list as $val}
+                    <option value="{$val}">{$val}</option>
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>商品规格：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input input-text" name="attr" value="">
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">商品展示图：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <table class="table table-border table-bordered pro_swiper">
+                    <tr class="text-c">
+                        <td>展示类型</td>
+                        <td>展示内容</td>
+                        <td>
+                            <button class="btn btn-primary radius size-MINI" type="button" onclick="addSwiper()">添加
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">商品详情：</label>
+            <div class="formControls col-xs-8 col-sm-9 cl product_detail">
+                <div class="bk-gray col-3 f-l text-c addProductDetail" onclick="addProductDetail('saveDetail')">
+                    <i class="Hui-iconfont Hui-iconfont-add" style="font-size: 50px;"></i>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row cl">
+            <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+                <button class="btn btn-secondary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 保存商品
+                </button>
+                <button onClick="layer_close();" class="btn btn-default radius" type="button">
+                    &nbsp;&nbsp;取消&nbsp;&nbsp;
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+</body>
+{include file="pub@pub/footer"/}
+<script>
+    //添加商品详情
+    function addProductDetail(callback){
+        layer_show("选择图片", "{:url('pub/Image/image')}?callback="+callback);
+    }
+    function saveDetail(imageList){
+        var div = "";
+        $("input[name='product_detail']").val(imageList.join(","));
+        $.each(imageList, function (i, v) {
+            div += '<div class="bk-gray col-3 f-l">\n' +
+                '                    <span><i class="Hui-iconfont Hui-iconfont-del" onclick="removeImg(this)"></i></span>\n' +
+                '                    <img src="'+v+'" alt="" style="width: 100%;">\n' +
+                '                </div>'
+        });
+        $(".addProductDetail").before(div);
+    }
+    function removeImg(o){
+        var img = $(o).parent().parent();
+        var img_url = img.find("img").attr("src");
+        var img_arr = $("input[name='product_detail']").val().split(",");
+        var index;
+        for(var i=0; i<img_arr.length; i++){
+            if(img_arr[i] == img_url){
+                index = i;
+                break;
+            }
+        }
+        img_arr.splice(i, 1);
+        img.remove();
+        $("input[name='product_detail']").val(img_arr.join(","));
+    }
+
+    // 商品展示处理js
+    function addSwiper() {
+        let _html = '<tr class="text-c">\n' +
+            '                        <td>\n' +
+            '                            <select name="swiper_type[]" class="select select-box" onchange="changeSwiper(this)">\n' +
+            '                                <option value="1">图片</option>\n' +
+            '                                <option value="2">视频</option>\n' +
+            '                            </select>\n' +
+            '                        </td>\n' +
+            '                        <td>\n' +
+            '                            <span class="btn-upload form-group">\n' +
+            '                  <a href="javascript:void();" class="btn btn-primary radius"><i class="Hui-iconfont Hui-iconfont-search"></i> 选择图片</a>\n' +
+            '                  <input type="file" accept="image/*" onchange="uploadFile(this, \'swiper[]\')" class="input-file">\n' +
+            '                </span>\n' +
+            '                        </td>\n' +
+            '                        <td>\n' +
+            '                            <button class="btn btn-primary radius size-MINI" onclick="delTd(this)">删除</button>\n' +
+            '                        </td>\n' +
+            '                    </tr>';
+        $(".pro_swiper").append(_html);
+    }
+
+    function changeSwiper(o) {
+        let type = $(o).val();
+        let _input;
+        if (type == 1) {
+            _input = '<span class="btn-upload form-group">\n' +
+                '                  <a href="javascript:void();" class="btn btn-primary radius"><i class="Hui-iconfont Hui-iconfont-search"></i> 选择图片</a>\n' +
+                '                  <input type="file" class="input-file" onchange="uploadFile(this, \'swiper[]\')" accept="image/*">\n' +
+                '                </span>';
+        } else {
+            _input = '<span class="btn-upload form-group">\n' +
+                '                  <a href="javascript:void();" class="btn btn-primary radius"><i class="Hui-iconfont Hui-iconfont-search"></i> 选择视频</a>\n' +
+                '                  <input type="file" onchange="uploadFile(this, \'swiper[]\')" class="input-file" accept="video/mp4">\n' +
+                '                </span>';
+        }
+        $(o).parent().next('td').html(_input);
+    }
+
+    function delTd(o) {
+        $(o).parent().parent().remove();
+    }
+</script>
+
+
+<script type="text/javascript">
+    $(function () {
+        $("#form-product-add").validate({
+            onkeyup: false,
+            focusCleanup: true,
+            success: "valid",
+            submitHandler: function (form) {
+                $(form).ajaxSubmit(function (res) {
+                    if (res.code == 1) {
+                        parent.location.reload();
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                })
+            }
+        });
+    });
+
+</script>
+</html>

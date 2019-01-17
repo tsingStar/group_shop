@@ -1,0 +1,85 @@
+{include file='pub@pub/header'/}
+<title>发放优惠券</title>
+</head>
+<body>
+<div class="page-container">
+    <form action="" method="post" class="formControls form">
+        <div class="row cl">
+            <button type="button" class="btn btn-primary radius" onclick="deliveryCoupon(0)">全平台发放</button>
+            <button type="button" class="btn btn-primary radius" onclick="deliveryCoupon(1)">选中用户发放</button>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">会员查询：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" name="name" placeholder="会员昵称" required class="input input-text col-xs-8 col-sm-8">
+                <button type="button" onclick="getUserList()" class="btn btn-primary  col-xs-4 col-sm-4">查询</button>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">会员列表：</label>
+            <div class="formControls col-xs-8 col-sm-9 user_list">
+
+            </div>
+        </div>
+
+    </form>
+</div>
+
+</body>
+{include file="pub@pub/footer"/}
+<script>
+
+    function getUserList(){
+        var name = $.trim($("input[name='name']").val());
+        if(name == ''){
+            layer.alert("会员昵称不能为空");
+        }
+        $.post('{:url("getUserList")}', {name:name}, function (res) {
+            if(res.code == 1){
+                var _html = '';
+                $.each(res.data, function (i,v) {
+                    _html += '<div class="col-2" style="display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><label title="'+v.user_name+'" style="width: 100%;"><input type="checkbox" data-user_id="'+v.user_id+'">'+v.user_name+'</label></div>';
+                });
+                $(".user_list").html(_html);
+
+            }
+        });
+    }
+
+    function deliveryCoupon(type){
+        var index = layer.load();
+        if(type == 0){
+            //全平台发放
+            $.post(location.href, {type:0}, function (res) {
+                if(res.code == 1){
+                    parent.location.reload();
+                }else{
+                    layer.alert(res.msg);
+                }
+            });
+        }else if(type == 1){
+            //选中用户发放
+            var user_checked = $(".user_list").find("input[type='checkbox']:checked");
+            if(user_checked.length<=0){
+                layer.alert("未选择用户");
+                layer.close(index);
+                return;
+            }
+            var user_id = new Array();
+            $.each(user_checked, function (i, v) {
+                user_id.push($(v).data('user_id'));
+            });
+            $.post(location.href, {type:1, user_id:user_id.join(",")}, function (res) {
+                if(res.code == 1){
+                    parent.location.reload();
+                }
+                layer.alert(res.msg);
+            });
+        }else{
+            layer.alert("参数错误");
+        }
+    }
+
+
+</script>
+</html>

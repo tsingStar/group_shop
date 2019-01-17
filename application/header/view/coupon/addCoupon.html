@@ -1,0 +1,60 @@
+{include file='pub@pub/header'/}
+<title>新增商品</title>
+</head>
+<body>
+<div class="page-container">
+    <form action="" method="post" class="formControls form">
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">优惠金额 ：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" name="coupon_money" required class="input input-text">
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">最低使用金额：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" name="limit_money" required class="input input-text">
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">有效期：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" name="out_time" onfocus="WdatePicker({dateFmt:'yyyy-M-d'})" class="input input-text Wdate">
+            </div>
+        </div>
+
+        <div class="row cl">
+            <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+                <button type="submit" class="btn btn-primary radius">
+                    确定
+                </button>
+                <button onClick="layer_close();" class="btn btn-default radius" type="button">
+                    取消
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+</body>
+{include file="pub@pub/footer"/}
+<script>
+
+    $(function () {
+        $("form").validate({
+            submitHandler:function (form) {
+                var index = layer.load();
+                $(form).ajaxSubmit(function (res) {
+                    if(res.code == 1){
+                        parent.location.reload();
+                    }
+                    layer.close(index);
+                    layer.msg(res.msg);
+                });
+            }
+        })
+    })
+
+
+</script>
+</html>

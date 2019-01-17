@@ -1,0 +1,76 @@
+{include file="pub@pub/header"}
+<title>绑定微信号</title>
+</head>
+<body>
+<article class="page-container">
+    <form action="" method="post" class="form form-horizontal" id="form1">
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>用户昵称：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" autocomplete="false" class="input input-text col-10" id="user_key">
+                <button type="button" class="btn col-2" onclick="getUser(this)">查询</button>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>用户列表：</label>
+            <div class="formControls col-xs-8 col-sm-9 user_list">
+
+            </div>
+        </div>
+        <div class="row cl">
+            <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+                <input class="btn btn-primary radius" type="button" onclick="saveUser()" value="&nbsp;&nbsp;保存&nbsp;&nbsp;">
+            </div>
+        </div>
+    </form>
+</article>
+
+{include file="pub@pub/footer" /}
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript">
+    //保存微信用户
+    function saveUser(){
+        var l = $("input[type=checkbox]:checked");
+        var oarr = new Array();
+        $.each(l, function (i,v) {
+            oarr.push($(v).data('open_id'));
+        });
+        $.post("{:url('saveUser')}", {oarr:oarr.join(',')}, function (res) {
+            if(res.code == 1){
+                setTimeout(function () {
+                    location.reload();
+                }, 888);
+            }
+            layer.msg(res.msg);
+        })
+    }
+
+    //获取用户列表
+    function getUser(o){
+        var key = $("#user_key").val();
+        if($.trim(key) == ""){
+            layer.msg("请输入有效的昵称");
+        }
+        $.getJSON("{:url('getUserList')}", {key:key}, function (res) {
+            appendUser(res);
+        });
+    }
+
+    /**
+     * 加载用户列表
+     * @param list
+     */
+    function appendUser(list){
+        var _h = "";
+        $.each(list, function (i,v) {
+            _h += '<label style="display: inline-block;" class="col-2 pd-5 text-overflow"><input type="checkbox" data-open_id="'+v.open_id+'" data-user_name="'+v.user_name+'">'+v.user_name+'</label>';
+        });
+        $(".user_list").html(_h);
+    }
+
+
+</script>
+<!--/请在上方写此页面业务相关的脚本-->
+</body>
+</html>

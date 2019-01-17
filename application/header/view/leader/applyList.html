@@ -1,0 +1,162 @@
+﻿{include file='pub@pub/header'/}
+<title>商品列表</title>
+</head>
+<body class="pos-r">
+<div>
+    <nav class="breadcrumb">{$breadNav} <a class="btn btn-success radius r btn-refresh" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+    <div class="page-container">
+        <div class="text-c">
+            <form action="" method="get">
+                姓名：<input type="text" name="name" autocomplete="false" value="{$param.name|default=''}" placeholder="姓名" style="width:250px" class="input-text">
+                手机号：<input type="text" name="telephone" autocomplete="false" value="{$param.telephone|default=''}" placeholder="手机号" style="width:250px" class="input-text">
+                状态：<span class="select-box" style="width: 200px;">
+                        <select name="status" class="input select">
+                            <option value="">全部</option>
+                            <option value="0" {if isset($param['status']) and '0'===$param.status}selected{/if}>待处理</option>
+                            <option value="1" {if isset($param['status']) and '1'===$param.status}selected{/if}>已同意</option>
+                            <option value="2" {if isset($param['status']) and '2'===$param.status}selected{/if}>已拒绝</option>
+                        </select>
+                    </span>
+                <button class="btn btn-success" type="submit"><i class="Hui-iconfont">&#xe665;</i> 查找
+                </button>
+            </form>
+        </div>
+        <div class="cl pd-5 bg-1 bk-gray mt-20">
+            <span class="r">共有数据：<strong>{$totalNum}</strong> 条</span>
+        </div>
+        <div class="mt-20">
+            <table class="table table-border table-bordered table-bg table-hover table-sort">
+                <thead>
+                <tr class="text-c">
+                    <th width="60">姓名</th>
+                    <th width="100">联系方式</th>
+                    <th width="100">地址</th>
+                    <th width="100">小区名称</th>
+                    <th width="100">小区户数</th>
+                    <th width="100">是否有自己的邻居群</th>
+                    <th width="100">是否有销售经验</th>
+                    <th width="100">业务时间</th>
+                    <th width="100">其他</th>
+                    <th width="100">申请时间</th>
+                    <th width="100">是否已处理</th>
+                    <th width="100">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {foreach $list as $item}
+                <tr class="text-c va-m">
+                    <td>{$item.name}</td>
+                    <td>{$item.telephone}</td>
+                    <td>{$item.address}</td>
+                    <td>
+                        {$item.residential}
+                    </td>
+                    <td>{$item.neighbours}</td>
+                    <td>
+                        {if $item.have_group eq 1}
+                        是
+                        {else}
+                        否
+                        {/if}
+                    </td>
+                    <td>
+                        {if $item.have_sale eq 1}
+                        是
+                        {else}
+                        否
+                        {/if}
+                    </td>
+                    <td>
+                        {if $item.work_time eq 0}
+                        每天
+                        {elseif $item.work_time eq 1}
+                        周末
+                        {else/}
+                        空余时间
+                        {/if}
+                    </td>
+                    <td>
+                        {$item.other}
+                    </td>
+                    <td>{$item.create_time}</td>
+                    <td>
+                        {if $item.status eq 1}
+                            已同意
+                        {elseif $item.status eq 2}
+                            已拒绝
+                        {else/}
+                            未处理
+                        {/if}
+                    </td>
+                    <td class="td-manage">
+                        {if $item.status eq 0}
+                        <button type="button" class="btn btn-primary radius size-MINI" onClick="solve('{$item.id}')">
+                            <i class="Hui-iconfont Hui-iconfont-duigou"></i>确认
+                        </button>
+                        <button type="button" class="btn btn-primary radius size-MINI" onClick="refuse('{$item.id}')">
+                            <i class="Hui-iconfont Hui-iconfont-del"></i>拒绝
+                        </button>
+                        {/if}
+                        <button type="button" class="btn btn-primary radius size-MINI" onclick="detail('{$item.id}')">查看详情</button>
+                    </td>
+                </tr>
+                {/foreach}
+                </tbody>
+            </table>
+            {$list->render()}
+        </div>
+    </div>
+</div>
+
+{include file='pub@pub/footer'/}
+<script type="text/javascript">
+    // $('.table-sort').dataTable({
+    //     "ordering": false,//是否开启排序
+    //     "bStateSave": true,//状态保存
+    // });
+    function detail(id){
+        layer_show("团长申请详情", "{:url('Leader/detail')}?id="+id, 500, 600);
+    }
+
+    /**
+     * 确认申请
+     */
+    function solve(id){
+        layer.confirm("确认审核通过？", function () {
+            $.post("{:url('Leader/agree')}", {id:id}, function (res) {
+                if(res.code == 1){
+                    location.reload();
+                }else{
+                    layer.msg(res.msg);
+                }
+            });
+        })
+    }
+
+    /**
+     * 拒绝申请
+     */
+    function refuse(id) {
+        layer.prompt({
+            formType: 2,
+            value: '',
+            title: '请输入拒绝原因'
+        }, function(value, index, elem){
+            if(value == ""){
+                layer.msg("请输入拒绝原因");
+            }else{
+                $.post("{:url('Leader/refuse')}",{id:id, reason:value}, function (r) {
+                    if(r.code == 1){
+                        location.reload();
+                    }else{
+                        layer.msg(res.msg);
+                    }
+                });
+            }
+            layer.close(index);
+        });
+    }
+
+</script>
+</body>
+</html>

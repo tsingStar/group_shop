@@ -1,0 +1,84 @@
+﻿{include file='pub@pub/header'/}
+<title>团长列表</title>
+</head>
+<body class="pos-r">
+<div>
+    <nav class="breadcrumb">{$breadNav} <a class="btn btn-success radius r btn-refresh" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+    <div class="page-container">
+        <div class="cl pd-5 bg-1 bk-gray mt-20">
+            <button class="btn btn-primary radius" onclick="addCoupon()">添加优惠券</button>
+            <span class="r">共有数据：<strong>{$totalNum}</strong> 条</span>
+        </div>
+        <div class="mt-20">
+            <table class="table table-border table-bordered table-bg table-hover table-sort">
+                <thead>
+                <tr class="text-c">
+                    <th width="60">优惠券ID</th>
+                    <th width="100">优惠金额</th>
+                    <th width="100">最低使用金额</th>
+                    <th width="100">有效期</th>
+                    <th width="100">发放数量</th>
+                    <th width="100">使用数量</th>
+                    <th width="100">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {foreach $list as $item}
+                <tr class="text-c va-m">
+                    <td>{$item.id}</td>
+                    <td>{$item.coupon_money}</td>
+                    <td>{$item.limit_money}</td>
+                    <td>
+                        {$item.out_time}
+                    </td>
+                    <td>{$item.spread_num}</td>
+                    <td>{$item.use_num}</td>
+                    <td class="td-manage">
+                        <button type="button" class="btn btn-primary radius size-MINI" onclick="delivery('{$item.id}')">优惠券发放</button>
+                        <button type="button" class="btn btn-primary radius size-MINI" onclick="cancel('{$item.id}')">删除</button>
+                    </td>
+                </tr>
+                {/foreach}
+                </tbody>
+            </table>
+            {$list->render()}
+        </div>
+    </div>
+</div>
+
+{include file='pub@pub/footer'/}
+<script type="text/javascript">
+    //添加优惠券
+    function addCoupon() {
+        layer_show("添加优惠券", "{:url('addCoupon')}");
+    }
+    //发放优惠券
+    function delivery(coupon_id) {
+        var index = layer.open({
+            type: 2,
+            title: "发放优惠券",
+            content: "{:url('delivery')}?coupon_id="+coupon_id
+        });
+        layer.full(index);
+    }
+
+    //删除优惠券
+    function cancel(id){
+        layer.confirm("确定删除此优惠券？", function () {
+            $.post("{:url('delCoupon')}", {id:id}, function (res) {
+                if(res.code == 1){
+                    layer.msg(res.msg);
+                    setTimeout(function () {
+                        location.reload();
+                    }, 888);
+                }else{
+                    layer.msg(res.msg);
+                }
+            });
+        })
+    }
+
+
+</script>
+</body>
+</html>

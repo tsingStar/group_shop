@@ -1,0 +1,126 @@
+{include file='pub@pub/header'/}
+<title>销售属性编辑</title>
+</head>
+<body>
+<div class="page-container">
+    <form class="form form-horizontal" id="form-sale-attr" enctype="multipart/form-data" method="post">
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>商品标签：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <span class="select-box">
+                    <select name="tag_name" class="select">
+                        <option value="" {if $item.tag_name eq ''}selected{/if}>-请选择-</option>
+                        {foreach $tag_name as $val}
+                            <option value="{$val}" {if $item.tag_name eq $val}selected{/if}>{$val}</option>
+                        {/foreach}
+                    </select>
+                </span>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">个人限购：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" value="{$item.self_limit}" autocomplete="off" placeholder="" name="self_limit"><span>（为空则不限购）</span>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>每份数量：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" value="{$item.one_num|default=1}" autocomplete="off" placeholder="" name="one_num" required>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>进货价：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" value="{$item.purchase_price}" autocomplete="off" placeholder="" name="purchase_price" oninput="computeRate()" required>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>团购价：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" value="{$item.sale_price}" autocomplete="off" placeholder="" name="sale_price" oninput="computeRate()" required>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>市场价：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" value="{$item.market_price}" autocomplete="off" placeholder="" name="market_price" required>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>佣金比例：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" value="{$item.commission}" autocomplete="off" placeholder="" name="commission" required>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>毛利率：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" readonly value="{$item.ratioOfMargin}" autocomplete="off" placeholder="" name="ratioOfMargin" required>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">商品限量：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" value="{$item.limit}" autocomplete="off" placeholder="" name="limit">
+                <span>为空则不限量</span>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">开售时间：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" id="start_time" class="input-text Wdate" onfocus="WdatePicker({startDate: '%y-%M-%d HH:mm:ss' ,dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="{$item.start_time}" autocomplete="off" placeholder="" name="start_time">
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-2">下架时间：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" id="down_time" class="input-text Wdate" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="{$item.down_time}" autocomplete="off" placeholder="" name="down_time">
+            </div>
+        </div>
+        <div class="row cl">
+            <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+                <button class="btn btn-secondary radius" type="submit"><i class="Hui-iconfont Hui-iconfont-save"></i> 保存
+                </button>
+                <button onClick="layer_close();" class="btn btn-default radius" type="button">
+                    &nbsp;&nbsp;取消&nbsp;&nbsp;
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+</body>
+{include file="pub@pub/footer"/}
+<script type="text/javascript">
+    /**
+     * 计算毛利率
+     */
+    function computeRate(){
+        let purchase_price = parseFloat($("input[name='purchase_price']").val());
+        let sale_price = parseFloat($("input[name='sale_price']").val());
+        if(sale_price>0){
+            $("input[name='ratioOfMargin']").val(((sale_price-purchase_price)/sale_price).toFixed(2)*100);
+        }
+    }
+
+    $(function () {
+        $("#form-sale-attr").validate({
+            onkeyup: false,
+            focusCleanup: true,
+            success: "valid",
+            submitHandler: function (form) {
+                $(form).ajaxSubmit(function (res) {
+                    layer.msg(res.msg);
+                    if (res.code == 1) {
+                        setTimeout(function () {
+                            parent.location.reload();
+                        }, 888);
+                    }
+                })
+            }
+        });
+    });
+
+</script>
+</html>
