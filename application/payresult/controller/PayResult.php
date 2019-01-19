@@ -29,26 +29,26 @@ class PayResult extends Controller
     {
         set_time_limit(0);
         //微信支付来源
-//        $xml = file_get_contents('php://input');
-//        $_POST = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
-//        $log_path = LOG_PATH . 'weixin';
-//        is_dir($log_path) or mkdir($log_path, "0777");
-//        file_put_contents($log_path . DS . date("Y-m-d") . ".txt", date("H:m:s") . json_encode($_POST) . "\r\n", FILE_APPEND);
-//        if ($_POST['result_code'] == 'SUCCESS') {
-//            $weixin = new WeiXinPay();
-//            $validRes = $weixin->chargeNotify();
-//            if ($validRes === false) {
-//                Log::error('签名错误');
-//            }
-//            $orderInfo = $this->formatRes($validRes);
+        $xml = file_get_contents('php://input');
+        $_POST = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+        $log_path = LOG_PATH . 'weixin';
+        is_dir($log_path) or mkdir($log_path, "0777");
+        file_put_contents($log_path . DS . date("Y-m-d") . ".txt", date("H:m:s") . json_encode($_POST) . "\r\n", FILE_APPEND);
+        if ($_POST['result_code'] == 'SUCCESS') {
+            $weixin = new WeiXinPay();
+            $validRes = $weixin->chargeNotify();
+            if ($validRes === false) {
+                Log::error('签名错误');
+            }
+            $orderInfo = $this->formatRes($validRes);
             //测试
-            $no = input("order_no");
-            $t = model("Payment")->where("order_no", $no)->order("id desc")->find();
-            $orderInfo=[
-                "out_trade_no"=>$t["pay_no"],
-                "total_money"=>input("money"),
-                "trade_no"=>getOrderNo()
-            ];
+//            $no = input("order_no");
+//            $t = model("Payment")->where("order_no", $no)->order("id desc")->find();
+//            $orderInfo=[
+//                "out_trade_no"=>$t["pay_no"],
+//                "total_money"=>input("money"),
+//                "trade_no"=>getOrderNo()
+//            ];
             //测试
             try {
 //                $f = fopen(__PUBLIC__."/pay.txt", "w");
@@ -106,9 +106,9 @@ class PayResult extends Controller
                 model('OrderDet')->rollback();
                 Log::error("订单处理异常1" . $orderInfo['out_trade_no'] . ":" . $e->getMessage());
             }
-//        } else {
-//            Log::error('订单支付失败' . json_encode($_POST));
-//        }
+        } else {
+            Log::error('订单支付失败' . json_encode($_POST));
+        }
         header("Content-Type:application/xml");
         echo '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
     }

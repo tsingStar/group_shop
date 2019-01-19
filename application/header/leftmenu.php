@@ -17,10 +17,10 @@ $leftmenu = [
                 'navName' => '微信账号',
                 'url' => 'System/wAccount'
             ],
-            [
-                'navName' => '平台设置',
-                'url' => 'System/headerConfig'
-            ],
+//            [
+//                'navName' => '平台设置',
+//                'url' => 'System/headerConfig'
+//            ],
 //            [
 //                'navName'=>'用户管理',
 //                'url'=>'System/userList'
@@ -72,10 +72,10 @@ $leftmenu = [
                 'navName' => '待配送产品',
                 'url' => 'Product/shippingProduct'
             ],
-            [
-                'navName' => '订单列表',
-                'url' => 'Product/shippingProduct'
-            ],
+//            [
+//                'navName' => '订单列表',
+//                'url' => 'Product/shippingProduct'
+//            ],
 
         ]
     ],
@@ -100,13 +100,13 @@ $leftmenu = [
             ],
         ]
     ],
-    [
-        'navName' => '数据统计',
-        'navChild' => [
-            [
-                'navName' => '产品销量',
-                'url' => 'Sale/productCount'
-            ]
-        ]
-    ],
+//    [
+//        'navName' => '数据统计',
+//        'navChild' => [
+//            [
+//                'navName' => '产品销量',
+//                'url' => 'Sale/productCount'
+//            ]
+//        ]
+//    ],
 ];

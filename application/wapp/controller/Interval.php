@@ -10,7 +10,6 @@ namespace app\wapp\controller;
 
 
 use app\common\model\Group;
-use function Sodium\add;
 use think\Cache;
 use think\Controller;
 use think\Exception;
@@ -48,12 +47,49 @@ class Interval extends Controller
     }
 
     /**
+     * 定时关闭过期订单
+     */
+    public function closeOrder()
+    {
+        set_time_limit(0);
+        $order_list = model("Order")->where("order_status", 0)->where("create_time", "lt", time() - 15 * 60)->select();
+        foreach ($order_list as $order) {
+            //处理商品库存及销量信息
+            $order_det = model("OrderDet")->where("order_no", $order["order_no"])->select();
+            $order->save(["order_status", 2]);
+            $user = model("User")->where("id", $order["user_id"])->find();
+            foreach ($order_det as $value) {
+                //增加商品库存
+                model("Product")->addStock($value["product_id"], $value["buy_num"]);
+                //减少用户购买量
+                model("Product")->addBuyUser($user["open_id"], $value["product_id"], -$p["buy_num"]);
+                //减少当期商品销量
+                model("Product")->addCurrentSale($value["product_id"], -$value["buy_num"]);
+            }
+            //返还积分
+            if ($order["score"] > 0) {
+                model("User")->where("id", $user["id"])->setInc("score", $order["score"]);
+                Cache::rm($user["open_id"] . ":userInfo");
+            }
+            //返还优惠券
+            if ($order["coupon_id"] > 0) {
+                $coupon = model("UserCoupon")->where("id", $order["coupon_id"])->find();
+                if ($coupon["out_time"] != "" && strtotime($coupon["out_time"]) > time()) {
+                    $coupon->save(["status" => 0]);
+                } else {
+                    $coupon->save(["status" => 2]);
+                }
+            }
+        }
+    }
+
+    /**
      * 计算团长佣金及城主收入
      */
     public function compCommissionAndSalary()
     {
         set_time_limit(0);
-        $f = fopen("comp.lock", "w");
+        $f = fopen(__PUBLIC__ . "/comp.lock", "w");
         if (flock($f, LOCK_EX | LOCK_NB)) {
             $list = model("OrderDet")->where("is_comp", 0)->where("status", 3)->where("is_get", 2)->select();
             try {

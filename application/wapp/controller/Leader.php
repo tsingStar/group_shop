@@ -262,19 +262,19 @@ class Leader extends Controller
             $withdraw_id = model("WithdrawLog")->getLastInsID();
             $log_model = model("WithdrawLog")->where("id", $withdraw_id)->find();
             $weixin = new WeiXinPay();
-//            $res = $weixin->withdraw([
-//                "open_id" => $leader["open_id"],
-//                "amount" => $money,
-//                "check_name" => "NO_CHECK",
-//                "desc" => "佣金提现",
-//                "order_no" => $order_no
-//            ]);
-            $res = [
-                "code" => 1,
-                "result" => [
-                    "payment_time" => "2019-01-15 12:25:89"
-                ]
-            ];
+            $res = $weixin->withdraw([
+                "open_id" => $leader["open_id"],
+                "amount" => $money,
+                "check_name" => "NO_CHECK",
+                "desc" => "佣金提现",
+                "order_no" => $order_no
+            ]);
+//            $res = [
+//                "code" => 1,
+//                "result" => [
+//                    "payment_time" => "2019-01-15 12:25:89"
+//                ]
+//            ];
             if ($res["code"] == 1) {
                 $result = $res["result"];
                 //更改申请状态

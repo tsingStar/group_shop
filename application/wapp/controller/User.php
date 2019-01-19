@@ -375,7 +375,7 @@ class User extends Controller
     public function makeOrder()
     {
         //商品id串
-        $f = fopen("lock", "w");
+        $f = fopen(__PUBLIC__."/order.lock", "w");
         if (flock($f, LOCK_EX)) {
             $pid_str = input("pid_str");
             $pid_arr = explode(",", $pid_str);

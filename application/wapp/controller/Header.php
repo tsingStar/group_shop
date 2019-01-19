@@ -485,7 +485,7 @@ class Header extends Controller
      */
     public function agreeRefund()
     {
-        $f = fopen(__PUBLIC__ . "lock.lock", "w");
+        $f = fopen(__PUBLIC__ . "/lock.lock", "w");
         if (flock($f, LOCK_EX | LOCK_NB)) {
             $refund_id = input("refund_id");
             $status = input("status");
@@ -508,8 +508,8 @@ class Header extends Controller
                         "refund_desc" => "团购退款" . "," . $refund['product_name'] . "-" . $refund["reason"],
                     ];
                     Log::error($refund_order);
-//                $res = $weixin->refund($refund_order);
-                    $res = true;
+                $res = $weixin->refund($refund_order);
+//                    $res = true;
                     if ($res) {
                         model("RefundLog")->save($refund_order);
                         $refund->save(["status" => 1]);
@@ -596,19 +596,19 @@ class Header extends Controller
             $log_model = model("WithdrawLog")->where("id", $withdraw_id)->find();
             $weixin = new WeiXinPay();
 
-//        $res = $weixin->withdraw([
-//            "open_id" => $h["open_id"],
-//            "amount" => $money,
-//            "check_name" => "NO_CHECK",
-//            "desc" => "军团提现到账",
-//            "order_no" => $order_no
-//        ]);
-            $res = [
-                "code" => 1,
-                "result" => [
-                    "payment_time" => "2019-01-15 12:25:89"
-                ]
-            ];
+        $res = $weixin->withdraw([
+            "open_id" => $h["open_id"],
+            "amount" => $money,
+            "check_name" => "NO_CHECK",
+            "desc" => "军团提现到账",
+            "order_no" => $order_no
+        ]);
+//            $res = [
+//                "code" => 1,
+//                "result" => [
+//                    "payment_time" => "2019-01-15 12:25:89"
+//                ]
+//            ];
             if ($res['code'] == 1) {
                 $result = $res["result"];
                 $log_model->save(["withdraw_time" => $result["payment_time"], "status" => 1]);
@@ -668,20 +668,20 @@ class Header extends Controller
             $withdraw_id = model("WithdrawLog")->getLastInsID();
             $log_model = model("WithdrawLog")->where("id", $withdraw_id)->find();
             $weixin = new WeiXinPay();
-//            $res = $weixin->withdrawBank([
-//                "amount" => $money,
-//                "bank_no" => $bank["bank_no"],
-//                "bank_code" => $bank["bank_code"],
-//                "true_name" => $bank["true_name"],
-//                "desc" => "军团提现到银行卡到账",
-//                "order_no" => $order_no
-//            ]);
-            $res = [
-                "code" => 1,
-                "result" => [
-                    "payment_time" => "2019-01-15 12:25:89"
-                ]
-            ];
+            $res = $weixin->withdrawBank([
+                "amount" => $money,
+                "bank_no" => $bank["bank_no"],
+                "bank_code" => $bank["bank_code"],
+                "true_name" => $bank["true_name"],
+                "desc" => "军团提现到银行卡到账",
+                "order_no" => $order_no
+            ]);
+//            $res = [
+//                "code" => 1,
+//                "result" => [
+//                    "payment_time" => "2019-01-15 12:25:89"
+//                ]
+//            ];
             if ($res['code'] == 1) {
                 $result = $res["result"];
                 $log_model->save(["withdraw_time" => $result["payment_time"], "status" => 1]);
